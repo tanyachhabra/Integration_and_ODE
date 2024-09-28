@@ -1,2 +1,4 @@
-# Integration_and_ODE
-This is the repository for project one on Computational Physics class 
+This repository has all the code for Project One of the Computational Physics class. The project is about solving ordinary differential equations (ODEs) and doing numerical integration, specifically for pendulum systems, as explained in the project report.
+
+Both the scripts ODE.py and Integration_Electric_Potential.py do not need any input arguments. 
+
