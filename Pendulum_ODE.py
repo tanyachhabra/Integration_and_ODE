@@ -1,4 +1,5 @@
-############For simple pendulum##########
+############ For simple pendulum##########
+import matplotlib.animation as animation
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -18,11 +19,15 @@ t = np.linspace(0, 10, 1000)
 dt = t[1] - t[0]
 
 # ODEs for the simple pendulum
+
+
 def derivatives(state, t):
     theta, omega = state
     return [omega, -g/L * np.sin(theta)]
 
 # Euler method
+
+
 def euler_step(state, dt):
     theta, omega = state
     theta_new = theta + omega * dt
@@ -30,6 +35,8 @@ def euler_step(state, dt):
     return [theta_new, omega_new]
 
 # RK4 method
+
+
 def rk4_step(state, dt):
     k1 = derivatives(state, 0)
     k2 = derivatives([state[i] + 0.5*dt*k1[i] for i in range(2)], 0.5*dt)
@@ -38,6 +45,8 @@ def rk4_step(state, dt):
     return [state[i] + (dt/6)*(k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) for i in range(2)]
 
 # Energy calculation
+
+
 def calculate_energy(state):
     theta, omega = state
     kinetic = 0.5 * m * (L * omega)**2
@@ -59,7 +68,6 @@ rk4_solution = [[theta0, omega0]]
 for _ in range(1, len(t)):
     rk4_solution.append(rk4_step(rk4_solution[-1], dt))
 rk4_solution = np.array(rk4_solution)
-
 
 
 # Calculate energies
@@ -111,10 +119,7 @@ plt.grid(True)
 plt.savefig("error.png")
 plt.show()
 
-###############for double pendulum #############
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+############### for double pendulum #############
 
 # Constants and initial conditions
 fps = 60
@@ -129,12 +134,14 @@ friction_coefficient = 0.1  # friction
 # Initial angles (radians) and angular velocities (rad/s)
 theta_1_0 = np.pi / 4  # Starting angle for pendulum 1 (45 degrees)
 theta_2_0 = -np.pi / 4  # Starting angle for pendulum 2 (-45 degrees)
-theta_dot_1_0 = 5.0  # Initial angular velocity for pendulum 1 (positive for upward motion)
+# Initial angular velocity for pendulum 1 (positive for upward motion)
+theta_dot_1_0 = 5.0
 theta_dot_2_0 = 0  # Initial angular velocity for pendulum 2
 
 u_vector = [theta_1_0, theta_2_0, theta_dot_1_0, theta_dot_2_0]
 delta_t = 1 / fps / steps_per_frame
 u_vector_time_snapshots = []
+
 
 def symplectic_euler_step():
     theta_1, theta_2, theta_dot_1, theta_dot_2 = u_vector
@@ -145,14 +152,14 @@ def symplectic_euler_step():
                           m_2 * l_2 * theta_dot_2**2 * np.sin(theta_1 - theta_2) -
                           (m_1 + m_2) * g * np.sin(theta_1)) / \
                          ((m_1 + m_2) * l_1 - m_2 * l_1 * np.cos(theta_1 - theta_2)**2) - \
-                         friction_coefficient * np.sign(theta_dot_1)
+        friction_coefficient * np.sign(theta_dot_1)
 
     theta_double_dot_2 = (m_2 * l_2 * theta_dot_2**2 * np.sin(theta_1 - theta_2) * np.cos(theta_1 - theta_2) +
                           (m_1 + m_2) * g * np.sin(theta_1) * np.cos(theta_1 - theta_2) +
                           l_1 * theta_dot_1**2 * np.sin(theta_1 - theta_2) * (m_1 + m_2) -
                           g * np.sin(theta_2) * (m_1 + m_2)) / \
                          (l_2 * (m_1 + m_2) - m_2 * l_2 * np.cos(theta_1 - theta_2)**2) - \
-                         friction_coefficient * np.sign(theta_dot_2)
+        friction_coefficient * np.sign(theta_dot_2)
 
     u_vector[2] += theta_double_dot_1 * delta_t
     u_vector[3] += theta_double_dot_2 * delta_t
@@ -160,6 +167,7 @@ def symplectic_euler_step():
     u_vector[1] += u_vector[3] * delta_t
 
     u_vector_time_snapshots.append(u_vector.copy())
+
 
 radius_of_graph_axes = max(l_1, l_2) * 2.1
 fig, ax = plt.subplots(figsize=(8, 8))
@@ -175,6 +183,7 @@ line1, = ax.plot([], [], lw=0.5, color='red')
 bar0, = ax.plot([], [], lw=3, color='black')
 bar1, = ax.plot([], [], lw=3, color='black')
 
+
 def get_axis_coordinates(particle, axis):
     if axis == 0:
         return (l_1 * np.sin(u_vector_time_snapshots[-1][0]) if particle == 0
@@ -183,6 +192,7 @@ def get_axis_coordinates(particle, axis):
         return (-l_1 * np.cos(u_vector_time_snapshots[-1][0]) if particle == 0
                 else -l_1 * np.cos(u_vector_time_snapshots[-1][0]) - l_2 * np.cos(u_vector_time_snapshots[-1][1]))
 
+
 def animate(i):
     for _ in range(steps_per_frame):
         symplectic_euler_step()
@@ -190,9 +200,11 @@ def animate(i):
     line0.set_data(get_axis_coordinates(0, 0), get_axis_coordinates(0, 1))
     line1.set_data(get_axis_coordinates(1, 0), get_axis_coordinates(1, 1))
 
-    bar0.set_data([0, l_1 * np.sin(u_vector[0])], [0, -l_1 * np.cos(u_vector[0])])
+    bar0.set_data([0, l_1 * np.sin(u_vector[0])],
+                  [0, -l_1 * np.cos(u_vector[0])])
     bar1.set_data([l_1 * np.sin(u_vector[0]), l_1 * np.sin(u_vector[0]) + l_2 * np.sin(u_vector[1])],
                   [-l_1 * np.cos(u_vector[0]), -l_1 * np.cos(u_vector[0]) - l_2 * np.cos(u_vector[1])])
+
 
 ani = animation.FuncAnimation(fig, animate, frames=500, interval=1000.0 / fps)
 plt.show()
